@@ -1,0 +1,15 @@
+server:
+  port: 7000
+
+spring:
+  application:
+    name: config-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: true
+
+    config:
+      server:
+        git:
+          uri: https://github.com/Fuji-vanilli/shpping-config-repo.git
