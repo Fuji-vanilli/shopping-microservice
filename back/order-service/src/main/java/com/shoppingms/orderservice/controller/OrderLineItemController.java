@@ -1,14 +1,15 @@
-package com.shoppingms.productservice.controller;
+package com.shoppingms.orderservice.controller;
 
-import com.shoppingms.productservice.dto.ProductRequest;
-import com.shoppingms.productservice.utils.Response;
+import com.shoppingms.orderservice.dto.OrderLineItemRequest;
+import com.shoppingms.orderservice.dto.OrderRequest;
+import com.shoppingms.orderservice.utils.Response;
 import org.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-public interface ProductController {
+public interface OrderLineItemController {
     @PostMapping("add")
-    ResponseEntity<Response> add(@RequestBody ProductRequest request) throws JSONException;
+    ResponseEntity<Response> add(@RequestBody OrderLineItemRequest request) throws JSONException;
     @GetMapping("get/{code}")
     ResponseEntity<Response> get(@PathVariable String code);
     @GetMapping("all")

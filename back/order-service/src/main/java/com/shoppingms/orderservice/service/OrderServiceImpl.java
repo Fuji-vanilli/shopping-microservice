@@ -1,15 +1,15 @@
-package com.shoppingms.productservice.service;
+package com.shoppingms.orderservice.service;
 
-import com.shoppingms.productservice.dto.ProductMapper;
-import com.shoppingms.productservice.dto.ProductRequest;
-import com.shoppingms.productservice.model.Product;
-import com.shoppingms.productservice.repository.ProductRepository;
-import com.shoppingms.productservice.restClient.WebClientInventory;
-import com.shoppingms.productservice.utils.Response;
-import com.shoppingms.productservice.validator.ProductValidator;
+import com.shoppingms.orderservice.dto.OrderMapper;
+import com.shoppingms.orderservice.dto.OrderRequest;
+import com.shoppingms.orderservice.model.Order;
+import com.shoppingms.orderservice.model.OrderLineItem;
+import com.shoppingms.orderservice.repository.OrderLineItemRepository;
+import com.shoppingms.orderservice.repository.OrderRepository;
+import com.shoppingms.orderservice.utils.Response;
+import com.shoppingms.orderservice.validator.OrderValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,31 +18,34 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
-@Slf4j
 @Transactional
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService{
-    private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
-    private final WebClientInventory webClient;
+@Slf4j
+public class OrderServiceImpl implements OrderService{
+    private final OrderRepository orderRepository;
+    private final OrderLineItemRepository orderLineItemRepository;
+    private final OrderMapper orderMapper;
     @Override
-    public Response add(ProductRequest request) throws JSONException {
-        List<String> errors= ProductValidator.validate(request);
+    public Response add(OrderRequest request) {
+        List<String> errors= OrderValidator.validate(request);
         if(!errors.isEmpty()){
             log.error("some field not valid!!! Please try again");
             return generateResponse(
                     HttpStatus.BAD_REQUEST,
                     null,
-                    null,
+                    Map.of(
+                            "errors", errors
+                    ),
                     "some field not valid...Please try again!"
             );
         }
-        if(productRepository.existsByCode(request.getCode())){
+        if(orderRepository.existsByCodeOrder(request.getCodeOrder())){
             log.error("product already exist on the database!!!!");
             return generateResponse(
                     HttpStatus.CONFLICT,
@@ -51,41 +54,46 @@ public class ProductServiceImpl implements ProductService{
                     "Product already exist...Please try again!"
             );
         }
-        Boolean isAdded= webClient.productToInventory(request.getCode());
 
-        Product product= productMapper.mapToProduct(request);
+        Order order= orderMapper.mapToOrder(request);
 
-        product.setCreationDate(Instant.now());
-        product.setLastModifiedDate(Instant.now());
+        OrderLineItem orderLineItem= orderLineItemRepository.findByCode(request.getLineItemCode())
+                .orElseThrow(
+                        ()->  new RuntimeException("error to fetch order line item")
+                );
+        List<OrderLineItem> orderLineItems= new ArrayList<>();
+        orderLineItems.add(orderLineItem);
 
-        productRepository.save(product);
+        order.setOrderLineItems(orderLineItems);
+        order.setDate(Instant.now());
+
+        orderRepository.save(order);
 
         URI location= ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/{code}")
-                .buildAndExpand("/api/product/"+request.getCode())
+                .buildAndExpand("api/order/get/"+order.getCodeOrder())
                 .toUri();
 
         return generateResponse(
                 HttpStatus.OK,
                 location,
                 Map.of(
-                        "product", productMapper.mapToProductResponse(product),
-                        "isAdded", isAdded
+                        "order", orderMapper.mapToOrderResponse(order)
                 ),
-                "new product added successfully!"
+                "new order enregistry successfully!"
         );
     }
 
     @Override
     public Response get(String code) {
-        Optional<Product> product= productRepository.findByCode(code);
-        if(product.isEmpty()){
-            log.error("product doesn't exist on the database");
+        Optional<Order> order= orderRepository.findByCodeOrder(code);
+        if(order.isEmpty()){
+            log.error("order doesn't exist on the database");
             return generateResponse(
                     HttpStatus.BAD_REQUEST,
                     null,
                     null,
-                    "product doesn't exist on the database"
+                    "order doesn't exist on the database"
             );
         }
 
@@ -93,44 +101,46 @@ public class ProductServiceImpl implements ProductService{
                 HttpStatus.OK,
                 null,
                 Map.of(
-                        "product", productMapper.mapToProductResponse(product.get())
+                        "order", orderMapper.mapToOrderResponse(order.get())
                 ),
-                "product with the code: "+code+" getting successfully!"
+                "order with the code: "+code+" getting successfully!"
         );
     }
 
     @Override
     public Response all() {
+
         return generateResponse(
                 HttpStatus.OK,
                 null,
                 Map.of(
-                        "products", productRepository.findAll().stream()
-                                .map(productMapper::mapToProductResponse)
+                        "orders", orderRepository.findAll().stream()
+                                .map(orderMapper::mapToOrderResponse)
                                 .toList()
                 ),
-                "all product getting successfully!"
+                "all orders getting successfully!"
         );
     }
 
     @Override
     public Response delete(String code) {
-        Optional<Product> product= productRepository.findByCode(code);
-        if(product.isEmpty()){
-            log.error("product doesn't exist on the database");
+
+        Optional<Order> order= orderRepository.findByCodeOrder(code);
+        if(order.isEmpty()){
+            log.error("order doesn't exist on the database");
             return generateResponse(
                     HttpStatus.BAD_REQUEST,
                     null,
                     null,
-                    "product doesn't exist on the database"
+                    "order doesn't exist on the database"
             );
         }
-        productRepository.deleteByCode(code);
+        orderRepository.deleteByCodeOrder(code);
         return generateResponse(
                 HttpStatus.OK,
                 null,
                 null,
-                "product with the code: "+code+" deleted successfully!"
+                "order with the code: "+code+" deleted successfully!"
         );
     }
     private Response generateResponse(HttpStatus status, URI location, Map<?, ?> data, String message) {

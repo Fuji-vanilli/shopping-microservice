@@ -4,6 +4,7 @@ import com.shoppingms.productservice.dto.ProductRequest;
 import com.shoppingms.productservice.service.ProductService;
 import com.shoppingms.productservice.utils.Response;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ import static com.shoppingms.productservice.utils.Root.APP_ROOT;
 public class ProductWeb implements ProductController {
     private final ProductService productService;
     @Override
-    public ResponseEntity<Response> add(ProductRequest request) {
+    public ResponseEntity<Response> add(ProductRequest request) throws JSONException {
         return ResponseEntity.ok(productService.add(request));
     }
 
