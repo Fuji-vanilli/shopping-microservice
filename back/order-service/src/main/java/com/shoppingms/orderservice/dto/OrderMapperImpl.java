@@ -9,7 +9,7 @@ public class OrderMapperImpl implements OrderMapper{
     public Order mapToOrder(OrderRequest request) {
         return Order.builder()
                 .codeOrder(request.getCodeOrder())
-                .lineItemCode(request.getLineItemCode())
+                .codeOrderLineItems(request.getLineItemCode())
                 .build();
     }
 
@@ -20,6 +20,8 @@ public class OrderMapperImpl implements OrderMapper{
                 .codeOrder(order.getCodeOrder())
                 .lineItemCode(order.getLineItemCode())
                 .date(order.getDate())
+                .totalPrice(order.getTotalPrice())
+                .codeOrderLineItems(order.getCodeOrderLineItems())
                 .orderLineItems(order.getOrderLineItems())
                 .build();
     }

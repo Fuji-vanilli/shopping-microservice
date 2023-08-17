@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -57,15 +58,15 @@ public class OrderServiceImpl implements OrderService{
 
         Order order= orderMapper.mapToOrder(request);
 
-        OrderLineItem orderLineItem= orderLineItemRepository.findByCode(request.getLineItemCode())
-                .orElseThrow(
-                        ()->  new RuntimeException("error to fetch order line item")
-                );
-        List<OrderLineItem> orderLineItems= new ArrayList<>();
-        orderLineItems.add(orderLineItem);
+        final List<OrderLineItem> orderLineItems = orderLineItemRepository.findByCodeIn(request.getLineItemCode());
+
+        final BigDecimal totalPrice = orderLineItems.stream()
+                .map(OrderLineItem::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         order.setOrderLineItems(orderLineItems);
         order.setDate(Instant.now());
+        order.setTotalPrice(totalPrice);
 
         orderRepository.save(order);
 

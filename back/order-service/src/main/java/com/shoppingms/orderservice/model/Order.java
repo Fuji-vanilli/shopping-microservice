@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -20,6 +21,8 @@ public class Order {
     private String codeOrder;
     private String lineItemCode;
     private Instant date;
+    private BigDecimal totalPrice;
+    private List<String> codeOrderLineItems;
     private List<OrderLineItem> orderLineItems;
 
 }
