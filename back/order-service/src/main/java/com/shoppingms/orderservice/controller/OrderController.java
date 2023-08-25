@@ -13,5 +13,5 @@ public interface OrderController {
     @GetMapping("all")
     ResponseEntity<Response> all();
     @DeleteMapping("delete/{code}")
-    ResponseEntity<Response> delete(@PathVariable String code);
+    ResponseEntity<Response> delete0(@PathVariable String code);
 }

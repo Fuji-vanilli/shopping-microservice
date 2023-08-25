@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.shoppingms.orderservice.utils.Root.APP_ROOT;
+import static com.shoppingms.orderservice.utils.Root.APP_ROOT_ORDER;
 
 @RestController
-@RequestMapping(APP_ROOT)
+@RequestMapping(APP_ROOT_ORDER)
 @RequiredArgsConstructor
 public class OrderApi implements OrderController{
     private final OrderService orderService;
@@ -31,7 +31,7 @@ public class OrderApi implements OrderController{
     }
 
     @Override
-    public ResponseEntity<Response> delete(String code) {
+    public ResponseEntity<Response> delete0(String code) {
         return ResponseEntity.ok(orderService.delete(code));
     }
 }

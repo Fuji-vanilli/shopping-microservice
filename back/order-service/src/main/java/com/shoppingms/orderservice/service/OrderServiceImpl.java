@@ -2,12 +2,15 @@ package com.shoppingms.orderservice.service;
 
 import com.shoppingms.orderservice.dto.OrderMapper;
 import com.shoppingms.orderservice.dto.OrderRequest;
+import com.shoppingms.orderservice.dto.Product;
 import com.shoppingms.orderservice.model.Order;
-import com.shoppingms.orderservice.model.OrderLineItem;
-import com.shoppingms.orderservice.repository.OrderLineItemRepository;
+import com.shoppingms.orderservice.model.OrderLine;
+import com.shoppingms.orderservice.repository.OrderLineRepository;
 import com.shoppingms.orderservice.repository.OrderRepository;
 import com.shoppingms.orderservice.utils.Response;
 import com.shoppingms.orderservice.validator.OrderValidator;
+import com.shoppingms.orderservice.webClient.WebClientProduct;
+import jakarta.servlet.Servlet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,10 +22,9 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -30,8 +32,10 @@ import java.util.Optional;
 @Slf4j
 public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
-    private final OrderLineItemRepository orderLineItemRepository;
+    private final OrderLineRepository orderLineRepository;
     private final OrderMapper orderMapper;
+    private final WebClientProduct webClientProduct;
+
     @Override
     public Response add(OrderRequest request) {
         List<String> errors= OrderValidator.validate(request);
@@ -46,33 +50,38 @@ public class OrderServiceImpl implements OrderService{
                     "some field not valid...Please try again!"
             );
         }
-        if(orderRepository.existsByCodeOrder(request.getCodeOrder())){
-            log.error("product already exist on the database!!!!");
+
+        if(orderRepository.existsByCode(request.getCode())){
+            log.error("order already exist on the database!!!");
             return generateResponse(
-                    HttpStatus.CONFLICT,
+                    HttpStatus.BAD_REQUEST,
                     null,
                     null,
-                    "Product already exist...Please try again!"
+                    "order already exist on the database!!!"
             );
         }
 
         Order order= orderMapper.mapToOrder(request);
+        final List<OrderLine> orderLines = orderLineRepository.findByCodeIn(order.getCodeOrderLines()).stream()
+                .peek(orderLine -> {
+                    Product product = webClientProduct.getProduct(orderLine.getCodeProduct());
+                    orderLine.setProduct(product);
+                })
+                .toList();
 
-        final List<OrderLineItem> orderLineItems = orderLineItemRepository.findByCodeIn(request.getLineItemCode());
-
-        final BigDecimal totalPrice = orderLineItems.stream()
-                .map(OrderLineItem::getPrice)
+        final BigDecimal totalPrice = orderLines.stream()
+                .map(OrderLine::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        order.setOrderLineItems(orderLineItems);
         order.setDate(Instant.now());
+        order.setOrderLines(orderLines);
         order.setTotalPrice(totalPrice);
 
         orderRepository.save(order);
 
         URI location= ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/{code}")
-                .buildAndExpand("api/order/get/"+order.getCodeOrder())
+                .buildAndExpand("api/order/get/"+order.getCode())
                 .toUri();
 
         return generateResponse(
@@ -81,67 +90,76 @@ public class OrderServiceImpl implements OrderService{
                 Map.of(
                         "order", orderMapper.mapToOrderResponse(order)
                 ),
-                "new order enregistry successfully!"
+                "new order created successfully!"
         );
     }
 
     @Override
     public Response get(String code) {
-        Optional<Order> order= orderRepository.findByCodeOrder(code);
-        if(order.isEmpty()){
-            log.error("order doesn't exist on the database");
+        final Order order = orderRepository.findByCode(code).orElse(null);
+        if(Objects.isNull(order)){
+            log.error("the order {} doesn't exist on the database", code);
             return generateResponse(
                     HttpStatus.BAD_REQUEST,
                     null,
                     null,
-                    "order doesn't exist on the database"
+                    "the order :"+code+" doesn't exist on database...."
             );
         }
+
+        List<OrderLine> orderLines= orderLineRepository.findByCodeIn(order.getCodeOrderLines());
+        order.setOrderLines(orderLines);
 
         return generateResponse(
                 HttpStatus.OK,
                 null,
                 Map.of(
-                        "order", orderMapper.mapToOrderResponse(order.get())
+                        "order", orderMapper.mapToOrderResponse(order)
                 ),
-                "order with the code: "+code+" getting successfully!"
+                "order getting successfully!!!"
         );
     }
 
     @Override
     public Response all() {
-
         return generateResponse(
                 HttpStatus.OK,
                 null,
                 Map.of(
                         "orders", orderRepository.findAll().stream()
-                                .map(orderMapper::mapToOrderResponse)
-                                .toList()
+                                .peek(order -> {
+                                    final List<OrderLine> orderLines = orderLineRepository.findByCodeIn(order.getCodeOrderLines())
+                                            .stream()
+                                            .peek(orderLine -> {
+                                                Product product= webClientProduct.getProduct(orderLine.getCodeProduct());
+                                                orderLine.setProduct(product);
+                                            })
+                                            .toList();
+                                    order.setOrderLines(orderLines);
+                                })
                 ),
-                "all orders getting successfully!"
+                "all order lines getting successfully!!!"
         );
     }
 
     @Override
     public Response delete(String code) {
-
-        Optional<Order> order= orderRepository.findByCodeOrder(code);
-        if(order.isEmpty()){
-            log.error("order doesn't exist on the database");
+        final Order order = orderRepository.findByCode(code).orElse(null);
+        if(Objects.isNull(order)){
+            log.error("the order {} doesn't exist on the database", code);
             return generateResponse(
                     HttpStatus.BAD_REQUEST,
                     null,
                     null,
-                    "order doesn't exist on the database"
+                    "the order :"+code+" doesn't exist on database...."
             );
         }
-        orderRepository.deleteByCodeOrder(code);
+        orderRepository.deleteByCode(code);
         return generateResponse(
                 HttpStatus.OK,
                 null,
                 null,
-                "order with the code: "+code+" deleted successfully!"
+                "order deleted successfully!!!"
         );
     }
     private Response generateResponse(HttpStatus status, URI location, Map<?, ?> data, String message) {

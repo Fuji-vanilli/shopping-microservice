@@ -18,11 +18,9 @@ import java.util.List;
 public class Order {
     @Id
     private String id;
-    private String codeOrder;
-    private String lineItemCode;
+    private String code;
     private Instant date;
     private BigDecimal totalPrice;
-    private List<String> codeOrderLineItems;
-    private List<OrderLineItem> orderLineItems;
-
+    private List<String> codeOrderLines;
+    private List<OrderLine> orderLines;
 }

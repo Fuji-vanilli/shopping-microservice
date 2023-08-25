@@ -1,6 +1,7 @@
 package com.shoppingms.productservice.controller;
 
 import com.shoppingms.productservice.dto.ProductRequest;
+import com.shoppingms.productservice.model.Product;
 import com.shoppingms.productservice.service.ProductService;
 import com.shoppingms.productservice.utils.Response;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,11 @@ public class ProductWeb implements ProductController {
     @Override
     public ResponseEntity<Response> get(String code) {
         return ResponseEntity.ok(productService.get(code));
+    }
+
+    @Override
+    public Product getProduct(String code) {
+        return productService.getProduct(code);
     }
 
     @Override

@@ -1,13 +1,12 @@
 package com.shoppingms.orderservice.dto;
 
-import com.shoppingms.orderservice.model.OrderLineItem;
+import com.shoppingms.orderservice.model.OrderLine;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -15,10 +14,8 @@ import java.util.List;
 @Builder
 public class OrderResponse {
     private String id;
-    private String codeOrder;
-    private String lineItemCode;
-    private Instant date;
+    private String code;
     private BigDecimal totalPrice;
-    private List<OrderLineItem> orderLineItems;
-    private List<String> codeOrderLineItems;
+    private List<String> codeOrderLines;
+    private List<OrderLine> orderLines;
 }

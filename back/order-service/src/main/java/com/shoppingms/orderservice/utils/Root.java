@@ -1,6 +1,6 @@
 package com.shoppingms.orderservice.utils;
 
 public interface Root {
-    public static final String APP_ROOT= "api/order";
-    public static final String APP_ROOT_ORDER_LINE_ITEM= "api/order-line-item";
+    public static String APP_ROOT_ORDER_LINE= "api/order-line";
+    public static String APP_ROOT_ORDER= "api/order";
 }

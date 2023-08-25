@@ -1,6 +1,7 @@
 package com.shoppingms.productservice.controller;
 
 import com.shoppingms.productservice.dto.ProductRequest;
+import com.shoppingms.productservice.model.Product;
 import com.shoppingms.productservice.utils.Response;
 import org.json.JSONException;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ public interface ProductController {
     ResponseEntity<Response> add(@RequestBody ProductRequest request) throws JSONException;
     @GetMapping("get/{code}")
     ResponseEntity<Response> get(@PathVariable String code);
+    @GetMapping("product/{code}")
+    Product getProduct(@PathVariable String code);
     @GetMapping("all")
     ResponseEntity<Response> all();
     @DeleteMapping("delete/{code}")

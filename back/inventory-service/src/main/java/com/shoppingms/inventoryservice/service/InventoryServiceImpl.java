@@ -136,7 +136,14 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Override
     public boolean isInStock(String code) {
-        return inventoryRepository.findByCodeProduct(code).isPresent();
+
+        final BigDecimal quantity = inventoryRepository.findByCodeProduct(code)
+                .orElseThrow(() -> {
+                    throw new RuntimeException("error to fetch inventory repository...");
+                }).getQuantity();
+
+        return quantity.compareTo(BigDecimal.ZERO)> 0;
+
     }
     @Override
     public Response all() {

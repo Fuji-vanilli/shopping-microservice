@@ -24,7 +24,7 @@ public class WebClientInventory {
         paramsJson.put("quantity", 0);
 
         CompletableFuture<String> dataFuture = webClient.build().post()
-                .uri("http://localhost:7120/api/inventory/add")
+                .uri("http://INVENTORY-SERVICE/api/inventory/add")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(paramsJson.toString()))
                 .retrieve()

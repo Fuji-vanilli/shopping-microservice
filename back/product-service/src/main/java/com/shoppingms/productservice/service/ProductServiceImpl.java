@@ -65,6 +65,7 @@ public class ProductServiceImpl implements ProductService{
                 .buildAndExpand("/api/product/"+request.getCode())
                 .toUri();
 
+        log.info("product: "+request.getCode()+" added successfully!");
         return generateResponse(
                 HttpStatus.OK,
                 location,
@@ -88,7 +89,7 @@ public class ProductServiceImpl implements ProductService{
                     "product doesn't exist on the database"
             );
         }
-
+        log.info("product: "+code+" getting successfully!");
         return generateResponse(
                 HttpStatus.OK,
                 null,
@@ -100,7 +101,17 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    public Product getProduct(String code) {
+
+        return productRepository.findByCode(code)
+                .orElseThrow(()-> {
+                    throw new RuntimeException("no product fetching!!!");
+                });
+    }
+
+    @Override
     public Response all() {
+        log.info("all product getting successfully!");
         return generateResponse(
                 HttpStatus.OK,
                 null,
@@ -126,6 +137,7 @@ public class ProductServiceImpl implements ProductService{
             );
         }
         productRepository.deleteByCode(code);
+        log.info("product: "+code+" deleted successfully!!!");
         return generateResponse(
                 HttpStatus.OK,
                 null,

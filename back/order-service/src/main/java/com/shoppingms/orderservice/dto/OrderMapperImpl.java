@@ -8,8 +8,8 @@ public class OrderMapperImpl implements OrderMapper{
     @Override
     public Order mapToOrder(OrderRequest request) {
         return Order.builder()
-                .codeOrder(request.getCodeOrder())
-                .codeOrderLineItems(request.getLineItemCode())
+                .code(request.getCode())
+                .codeOrderLines(request.getCodeOrderLines())
                 .build();
     }
 
@@ -17,12 +17,10 @@ public class OrderMapperImpl implements OrderMapper{
     public OrderResponse mapToOrderResponse(Order order) {
         return OrderResponse.builder()
                 .id(order.getId())
-                .codeOrder(order.getCodeOrder())
-                .lineItemCode(order.getLineItemCode())
-                .date(order.getDate())
+                .code(order.getCode())
+                .codeOrderLines(order.getCodeOrderLines())
                 .totalPrice(order.getTotalPrice())
-                .codeOrderLineItems(order.getCodeOrderLineItems())
-                .orderLineItems(order.getOrderLineItems())
+                .orderLines(order.getOrderLines())
                 .build();
     }
 }
