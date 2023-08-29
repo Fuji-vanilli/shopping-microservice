@@ -1,6 +1,7 @@
 package com.shoppingms.productservice.service;
 
 import com.shoppingms.productservice.dto.ProductMapper;
+import com.shoppingms.productservice.dto.ProductPlacedEvent;
 import com.shoppingms.productservice.dto.ProductRequest;
 import com.shoppingms.productservice.model.Product;
 import com.shoppingms.productservice.repository.ProductRepository;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,6 +32,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final WebClientInventory webClient;
+    private final KafkaTemplate<String, ProductPlacedEvent> kafkaTemplate;
     @Override
     public Response add(ProductRequest request) throws JSONException {
         List<String> errors= ProductValidator.validate(request);
@@ -59,6 +62,9 @@ public class ProductServiceImpl implements ProductService{
         product.setLastModifiedDate(Instant.now());
 
         productRepository.save(product);
+        kafkaTemplate.send(
+                "notificationTopic", new ProductPlacedEvent(product.getCode())
+        );
 
         URI location= ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/{code}")

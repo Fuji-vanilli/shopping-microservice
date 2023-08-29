@@ -3,10 +3,10 @@ package com.shoppingms.orderservice.controller;
 import com.shoppingms.orderservice.dto.OrderLineRequest;
 import com.shoppingms.orderservice.service.OrderLineService;
 import com.shoppingms.orderservice.utils.Response;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +18,7 @@ import static com.shoppingms.orderservice.utils.Root.APP_ROOT_ORDER_LINE;
 @RefreshScope
 @RequiredArgsConstructor
 public class OrderLineApi implements OrderLineController{
+    Logger log= LoggerFactory.getLogger(this.getClass());
     private final OrderLineService orderLineService;
 
     @Override

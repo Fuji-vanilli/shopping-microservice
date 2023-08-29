@@ -1,6 +1,7 @@
 package com.shoppingms.orderservice.webClient;
 
 import com.shoppingms.orderservice.dto.Product;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -21,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 public class WebClientInventory {
     private final WebClient.Builder webClient;
 
+    @CircuitBreaker(name = "inventoryService", fallbackMethod = "isInStockFallback")
     public Boolean isInStock(String code){
         return webClient.build().get()
                 .uri("http://INVENTORY-SERVICE/api/inventory/inStock/"+code)
@@ -29,6 +31,7 @@ public class WebClientInventory {
                 .block();
     }
 
+    @CircuitBreaker(name = "inventoryService", fallbackMethod = "getQuantityFallback")
     public BigDecimal getQuantity(String code){
         final CompletableFuture<String> future = webClient.build().get()
                 .uri("http://INVENTORY-SERVICE/api/inventory/get/" + code)
@@ -59,6 +62,7 @@ public class WebClientInventory {
         return quantity;
     }
 
+    @CircuitBreaker(name = "inventoryService", fallbackMethod = "subtractFallback")
     public Boolean subtract(String codeProduct, BigDecimal quantity){
         JSONObject params= null;
 
@@ -98,5 +102,14 @@ public class WebClientInventory {
         }
 
         return statusCode== 200;
+    }
+    public Boolean isInStockFallback(String code, Exception e){
+        return false;
+    }
+    public BigDecimal getQuantityFallback(String code, Exception e){
+        return BigDecimal.ZERO;
+    }
+    public Boolean subtractFallback(String code, BigDecimal quantity, Exception e){
+        return false;
     }
 }

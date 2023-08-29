@@ -12,6 +12,7 @@ import com.shoppingms.orderservice.webClient.WebClientProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -32,6 +33,7 @@ public class OrderLineServiceImpl implements OrderLineService{
     private final OrderLineMapper orderLineMapper;
     private final WebClientProduct webClientProduct;
     private final WebClientInventory webClientInventory;
+
     @Override
     public Response add(OrderLineRequest request) {
         List<String> errors= OrderLineValidator.validate(request);
@@ -85,6 +87,7 @@ public class OrderLineServiceImpl implements OrderLineService{
         orderLine.setPrice(product.getPrice().multiply(request.getQuantity()));
 
         orderLineRepository.save(orderLine);
+
         URI location= ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/{code}")
                 .buildAndExpand("api/order-line/"+request.getCode())

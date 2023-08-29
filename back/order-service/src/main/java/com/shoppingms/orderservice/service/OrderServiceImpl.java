@@ -3,6 +3,7 @@ package com.shoppingms.orderservice.service;
 import com.shoppingms.orderservice.dto.OrderMapper;
 import com.shoppingms.orderservice.dto.OrderRequest;
 import com.shoppingms.orderservice.dto.Product;
+import com.shoppingms.orderservice.event.OrderPlacedEvent;
 import com.shoppingms.orderservice.model.Order;
 import com.shoppingms.orderservice.model.OrderLine;
 import com.shoppingms.orderservice.repository.OrderLineRepository;
@@ -14,6 +15,7 @@ import jakarta.servlet.Servlet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -35,6 +37,7 @@ public class OrderServiceImpl implements OrderService{
     private final OrderLineRepository orderLineRepository;
     private final OrderMapper orderMapper;
     private final WebClientProduct webClientProduct;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     @Override
     public Response add(OrderRequest request) {
@@ -78,6 +81,9 @@ public class OrderServiceImpl implements OrderService{
         order.setTotalPrice(totalPrice);
 
         orderRepository.save(order);
+        kafkaTemplate.send(
+                "notificationTopic", new OrderPlacedEvent(order.getCode())
+        );
 
         URI location= ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/{code}")

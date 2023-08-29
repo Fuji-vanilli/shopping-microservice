@@ -1,6 +1,7 @@
 package com.shoppingms.analysisservice.webClient;
 
 import com.shoppingms.analysisservice.dto.Product;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class WebClientProduct {
     private final WebClient.Builder webClient;
-
+    @CircuitBreaker(name = "productService", fallbackMethod = "productFallback")
     public Product getProduct(String code){
         final CompletableFuture<String> future = webClient.build().get()
                 .uri("http://localhost:7100/api/product/get/" + code)
@@ -49,5 +50,11 @@ public class WebClientProduct {
 
         return product;
 
+    }
+    public Product productFallback(String code){
+        return Product.builder()
+                .name("null")
+                .name("null")
+                .build();
     }
 }
