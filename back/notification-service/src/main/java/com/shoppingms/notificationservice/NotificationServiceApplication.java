@@ -15,9 +15,9 @@ public class NotificationServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(NotificationServiceApplication.class, args);
 	}
-
+/*
 	@KafkaListener(topics = "notificationTopic")
 	public void handleNotification(OrderPlacedEvent orderPlacedEvent){
 		log.info("Received notification for order: "+orderPlacedEvent.getCodeOrder());
-	}
+	}*/
 }

@@ -1,5 +1,6 @@
 package com.shoppingms.productservice.service;
 
+import com.shoppingms.productservice.dto.NotificationEvent;
 import com.shoppingms.productservice.dto.ProductMapper;
 import com.shoppingms.productservice.dto.ProductPlacedEvent;
 import com.shoppingms.productservice.dto.ProductRequest;
@@ -11,6 +12,7 @@ import com.shoppingms.productservice.validator.ProductValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +35,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final WebClientInventory webClient;
-    private final KafkaTemplate<String, ProductPlacedEvent> kafkaTemplate;
+    private final StreamBridge streamBridge;
     @Override
     public Response add(ProductRequest request) throws JSONException {
         List<String> errors= ProductValidator.validate(request);
@@ -62,9 +65,12 @@ public class ProductServiceImpl implements ProductService{
         product.setLastModifiedDate(Instant.now());
 
         productRepository.save(product);
-        kafkaTemplate.send(
-                "notificationTopic", new ProductPlacedEvent(product.getCode())
-        );
+
+        streamBridge.send("productTopic", NotificationEvent.builder()
+                        .code(product.getCode())
+                        .date(new Date())
+                        .productName(product.getName())
+                .build());
 
         URI location= ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/{code}")
