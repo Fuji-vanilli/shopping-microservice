@@ -3,4 +3,4 @@ spring:
     name: billing-service
 
   config:
-    import: optional:http://localhost:7000
+    import: optional:configserver:http://localhost:7000
