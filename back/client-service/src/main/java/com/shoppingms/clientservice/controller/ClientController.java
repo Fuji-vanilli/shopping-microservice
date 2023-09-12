@@ -9,7 +9,7 @@ public interface ClientController {
     @PostMapping("add")
     ResponseEntity<Response> add(@RequestBody ClientRequest request);
     @GetMapping("get/{code}")
-    ResponseEntity<Response> get(@PathVariable String code);
+    ResponseEntity<Response> get(@PathVariable String email);
     @GetMapping("all")
     ResponseEntity<Response> add();
     @DeleteMapping("delete/{code}")

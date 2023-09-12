@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -72,8 +73,27 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Response get(String code) {
-        return null;
+    public Response get(String email) {
+        Optional<Client> clientOptional= clientRepository.findByEmail(email);
+        if(clientOptional.isEmpty()){
+            log.error("the client with the email {} doesn't exist on database...Please try again....", email);
+            return generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    null,
+                    null,
+                    "the client with the email: "+email+" doesn't exist on database...Please try again...."
+            );
+        }
+        Client client= clientOptional.get();
+        log.info("client with the email: {} getted successfully!", email);
+        return generateResponse(
+                HttpStatus.OK,
+                null,
+                Map.of(
+                        "client", clientMapper.mapToClientResponse(client)
+                ),
+                "client with the email: "+email+" getted successfully!"
+        );
     }
 
     @Override

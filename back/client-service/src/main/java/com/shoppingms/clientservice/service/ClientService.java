@@ -5,7 +5,7 @@ import com.shoppingms.clientservice.utils.Response;
 
 public interface ClientService {
     Response add(ClientRequest request);
-    Response get(String code);
+    Response get(String email);
     Response all();
     Response delete(String code);
 }
