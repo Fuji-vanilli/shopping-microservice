@@ -98,12 +98,38 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Response all() {
-        return null;
+        log.info("all client getted successfully!");
+        return generateResponse(
+                HttpStatus.OK,
+                null,
+                Map.of(
+                        "clients", clientRepository.findAll().stream()
+                                .map(clientMapper::mapToClientResponse)
+                                .toList()
+                ),
+                "all client getted successfully"
+        );
     }
 
     @Override
-    public Response delete(String code) {
-        return null;
+    public Response delete(String email) {
+        if(!clientRepository.existsByEmail(email)){
+            log.error("the client with the email {} doesn't exist on database...Please try again....", email);
+            return generateResponse(
+                    HttpStatus.BAD_REQUEST,
+                    null,
+                    null,
+                    "the client with the email: "+email+" doesn't exist on database...Please try again...."
+            );
+        }
+        clientRepository.deleteByEmail(email);
+        log.info("client with the email: {} deleted successfully!", email);
+        return generateResponse(
+                HttpStatus.OK,
+                null,
+                null,
+                "client with the email: "+email+" deleted successfully!"
+        );
     }
 
     private Response generateResponse(HttpStatus status, URI location, Map<?, ?> data, String message) {

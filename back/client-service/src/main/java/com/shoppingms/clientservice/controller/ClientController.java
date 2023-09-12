@@ -11,7 +11,7 @@ public interface ClientController {
     @GetMapping("get/{code}")
     ResponseEntity<Response> get(@PathVariable String email);
     @GetMapping("all")
-    ResponseEntity<Response> add();
+    ResponseEntity<Response> all();
     @DeleteMapping("delete/{code}")
     ResponseEntity<Response> delete(@PathVariable String code);
 }

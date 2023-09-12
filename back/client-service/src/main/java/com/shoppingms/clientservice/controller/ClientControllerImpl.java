@@ -27,7 +27,7 @@ public class ClientControllerImpl implements ClientController{
     }
 
     @Override
-    public ResponseEntity<Response> add() {
+    public ResponseEntity<Response> all() {
         return ResponseEntity.ok(clientService.all());
     }
 

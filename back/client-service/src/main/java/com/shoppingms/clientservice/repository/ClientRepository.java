@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface ClientRepository extends MongoRepository<Client, String> {
     Optional<Client> findByEmail(String email);
     boolean existsByEmail(String email);
-    void deleteByCode(String email);
+    void deleteByEmail(String email);
 }
