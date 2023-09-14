@@ -2,6 +2,7 @@ package com.shoppingms.orderservice.service;
 
 import com.shoppingms.orderservice.dto.OrderMapper;
 import com.shoppingms.orderservice.dto.OrderRequest;
+import com.shoppingms.orderservice.dto.OrderResponse;
 import com.shoppingms.orderservice.dto.Product;
 import com.shoppingms.orderservice.event.OrderPlacedEvent;
 import com.shoppingms.orderservice.model.Order;
@@ -124,6 +125,20 @@ public class OrderServiceImpl implements OrderService{
                 ),
                 "order getting successfully!!!"
         );
+    }
+
+    @Override
+    public OrderResponse getOrder(String code) {
+        final Order order = orderRepository.findByCode(code).orElse(null);
+        if(Objects.isNull(order)){
+            log.error("the order {} doesn't exist on the database", code);
+            return null;
+        }
+
+        List<OrderLine> orderLines= orderLineRepository.findByCodeIn(order.getCodeOrderLines());
+        order.setOrderLines(orderLines);
+
+        return orderMapper.mapToOrderResponse(order);
     }
 
     @Override

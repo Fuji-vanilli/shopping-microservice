@@ -13,8 +13,9 @@ import java.util.List;
 @AllArgsConstructor @NoArgsConstructor
 @Builder
 public class Order {
+    private String id;
     private String code;
-    private Instant date;
     private BigDecimal totalPrice;
     private List<String> codeOrderLines;
+    private List<OrderLine> orderLines;
 }

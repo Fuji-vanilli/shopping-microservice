@@ -1,6 +1,7 @@
 package com.shoppingms.orderservice.controller;
 
 import com.shoppingms.orderservice.dto.OrderRequest;
+import com.shoppingms.orderservice.dto.OrderResponse;
 import com.shoppingms.orderservice.service.OrderService;
 import com.shoppingms.orderservice.utils.Response;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,11 @@ public class OrderApi implements OrderController{
     @Override
     public ResponseEntity<Response> get(String code) {
         return ResponseEntity.ok(orderService.get(code));
+    }
+
+    @Override
+    public OrderResponse getOrder(String code) {
+        return orderService.getOrder(code);
     }
 
     @Override

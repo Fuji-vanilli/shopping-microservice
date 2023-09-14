@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.FileNotFoundException;
+
 import static com.shoppingms.billingservice.utils.Root.APP_ROOT;
 
 @RestController
@@ -17,7 +19,7 @@ public class BillApi implements BillController{
     private final BillService billService;
 
     @Override
-    public ResponseEntity<Response> add(BillRequest request) {
+    public ResponseEntity<Response> add(BillRequest request) throws FileNotFoundException {
         return ResponseEntity.ok(billService.add(request));
     }
 
