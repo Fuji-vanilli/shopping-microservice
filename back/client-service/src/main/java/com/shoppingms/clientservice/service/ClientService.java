@@ -1,6 +1,7 @@
 package com.shoppingms.clientservice.service;
 
 import com.shoppingms.clientservice.dto.ClientRequest;
+import com.shoppingms.clientservice.dto.ClientResponse;
 import com.shoppingms.clientservice.utils.Response;
 
 public interface ClientService {

@@ -18,6 +18,7 @@ public class OrderMapperImpl implements OrderMapper{
         return OrderResponse.builder()
                 .id(order.getId())
                 .code(order.getCode())
+                .date(order.getDate())
                 .codeOrderLines(order.getCodeOrderLines())
                 .totalPrice(order.getTotalPrice())
                 .orderLines(order.getOrderLines())

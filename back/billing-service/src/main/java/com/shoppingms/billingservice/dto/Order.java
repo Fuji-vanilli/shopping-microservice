@@ -15,6 +15,7 @@ import java.util.List;
 public class Order {
     private String id;
     private String code;
+    private Instant date;
     private BigDecimal totalPrice;
     private List<String> codeOrderLines;
     private List<OrderLine> orderLines;

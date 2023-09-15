@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -15,6 +16,7 @@ import java.util.List;
 public class OrderResponse {
     private String id;
     private String code;
+    private Instant date;
     private BigDecimal totalPrice;
     private List<String> codeOrderLines;
     private List<OrderLine> orderLines;

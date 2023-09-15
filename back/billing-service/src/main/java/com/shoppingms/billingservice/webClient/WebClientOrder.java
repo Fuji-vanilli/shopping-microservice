@@ -13,7 +13,7 @@ public class WebClientOrder {
     private final WebClient.Builder webClient;
 
     public Order getOrder(String code){
-        return webClient.build().get().uri("http://localhost:7140/api/order/getOrder" + code)
+        return webClient.build().get().uri("http://localhost:7140/api/order/getOrder/" + code)
                 .retrieve()
                 .bodyToMono(Order.class)
                 .block();
